@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeCraftHub: Your Learning Management Platform</title>
+  <style>
+    :root {
+      --primary: #8B5CF6;
+      --primary-hover: #7C3AED;
+      --success: #F59E0B;
+      --delete: #EF4444;
+      --delete-hover: #DC2626;
+      --bg: #F9FAFB;
+      --card-bg: #FFFFFF;
+      --text: #1F2937;
+      --text-muted: #6B7280;
+      --border: #E5E7EB;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px 16px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    header h1 {
+      color: var(--primary);
+      font-size: 2rem;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      color: var(--text-muted);
+    }
+
+    /* Notification Banner */
+    #alert {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    .alert-success { background-color: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+    .alert-error { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+
+    /* Forms */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group-full {
+      grid-column: span 2;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border-radius: 6px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-edit { background: var(--success); color: #fff; padding: 6px 12px; font-size: 0.85rem; }
+    .btn-delete { background: var(--delete); color: #fff; padding: 6px 12px; font-size: 0.85rem; margin-left: 6px; }
+    .btn-delete:hover { background: var(--delete-hover); }
+
+    /* Courses Table */
+    .table-wrapper {
+      overflow-x: auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    th {
+      background: #F3F4F6;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .badge-not-started { background: #E5E7EB; color: #374151; }
+    .badge-in-progress { background: #FEF3C7; color: #92400E; }
+    .badge-completed { background: #D1FAE5; color: #065F46; }
+
+    /* Spinner */
+    #spinner {
+      display: none;
+      text-align: center;
+      padding: 24px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Edit Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: #fff;
+      border-radius: 12px;
+      max-width: 550px;
+      width: 100%;
+      padding: 24px;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group-full { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>CodeCraftHub</h1>
+      <p>Your Learning Management Platform</p>
+    </header>
+
+    <div id="alert"></div>
+
+    <!-- Create Course Form -->
+    <section class="card">
+      <h2>Add New Course</h2>
+      <form id="addCourseForm">
+        <div class="form-grid">
+          <div>
+            <label for="name">Course Title</label>
+            <input type="text" id="name" required placeholder="e.g., Python Mastery" />
+          </div>
+          <div>
+            <label for="target_date">Target Completion Date</label>
+            <input type="date" id="target_date" required />
+          </div>
+          <div class="form-group-full">
+            <label for="description">Description</label>
+            <textarea id="description" required placeholder="What skills will this course cover?"></textarea>
+          </div>
+          <div>
+            <label for="status">Initial Status</label>
+            <select id="status" required>
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: flex-end;">
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Create Course</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Course List -->
+    <section>
+      <h2>Tracked Courses</h2>
+      <div id="spinner">Loading courses...</div>
+      <div class="table-wrapper" style="margin-top: 12px;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Course</th>
+              <th>Target Date</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="coursesTableBody">
+            <!-- Dynamic rows populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h2 style="margin-bottom: 16px;">Edit Course</h2>
+      <form id="editCourseForm">
+        <input type="hidden" id="edit_id" />
+        <div style="margin-bottom: 12px;">
+          <label for="edit_name">Course Title</label>
+          <input type="text" id="edit_name" required />
+        </div>
+        <div style="margin-bottom: 12px;">
+          <label for="edit_target_date">Target Date</label>
+          <input type="date" id="edit_target_date" required />
+        </div>
+        <div style="margin-bottom: 12px;">
+          <label for="edit_status">Status</label>
+          <select id="edit_status" required>
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label for="edit_description">Description</label>
+          <textarea id="edit_description" required></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" style="background:#E5E7EB;" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:5000/api/courses";
+    let cachedCourses = [];
+
+    const alertBox = document.getElementById("alert");
+    const spinner = document.getElementById("spinner");
+    const tableBody = document.getElementById("coursesTableBody");
+    const addForm = document.getElementById("addCourseForm");
+    const editModal = document.getElementById("editModal");
+    const editForm = document.getElementById("editCourseForm");
+
+    function showAlert(msg, isError = false) {
+      alertBox.className = isError ? "alert-error" : "alert-success";
+      alertBox.textContent = msg;
+      alertBox.style.display = "block";
+      setTimeout(() => { alertBox.style.display = "none"; }, 4000);
+    }
+
+    function toggleSpinner(show) {
+      spinner.style.display = show ? "block" : "none";
+    }
+
+    function getBadgeClass(status) {
+      if (status === "Completed") return "badge-completed";
+      if (status === "In Progress") return "badge-in-progress";
+      return "badge-not-started";
+    }
+
+    // 1. GET /api/courses
+    async function fetchCourses() {
+      toggleSpinner(true);
+      try {
+        const res = await fetch(API_BASE);
+        if (!res.ok) throw new Error("Could not fetch courses from backend");
+        const json = await res.json();
+        cachedCourses = json.data || [];
+        renderTable(cachedCourses);
+      } catch (err) {
+        showAlert(err.message, true);
+      } finally {
+        toggleSpinner(false);
+      }
+    }
+
+    function renderTable(courses) {
+      tableBody.innerHTML = "";
+      if (courses.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No courses tracked yet. Add one above!</td></tr>`;
+        return;
+      }
+
+      courses.forEach(c => {
+        const tr = document.createElement("tr");
+        const formattedDate = c.created_at ? new Date(c.created_at).toLocaleDateString() : "—";
+        tr.innerHTML = `
+          <td><strong>#${c.id}</strong></td>
+          <td>
+            <strong>${c.name}</strong>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">${c.description}</div>
+          </td>
+          <td>${c.target_date}</td>
+          <td><span class="badge ${getBadgeClass(c.status)}">${c.status}</span></td>
+          <td style="font-size: 0.85rem; color: var(--text-muted);">${formattedDate}</td>
+          <td>
+            <button class="btn btn-edit" onclick="openEditModal(${c.id})">Edit</button>
+            <button class="btn btn-delete" onclick="deleteCourse(${c.id})">Remove</button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    // 2. POST /api/courses
+    addForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById("name").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        target_date: document.getElementById("target_date").value,
+        status: document.getElementById("status").value
+      };
+
+      toggleSpinner(true);
+      try {
+        const res = await fetch(API_BASE, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || "Failed to create course");
+        
+        showAlert("Course added successfully!");
+        addForm.reset();
+        fetchCourses();
+      } catch (err) {
+        showAlert(err.message, true);
+      } finally {
+        toggleSpinner(false);
+      }
+    });
+
+    // 3. PUT /api/courses/{id}
+    function openEditModal(id) {
+      const course = cachedCourses.find(c => c.id === id);
+      if (!course) return;
+
+      document.getElementById("edit_id").value = course.id;
+      document.getElementById("edit_name").value = course.name;
+      document.getElementById("edit_target_date").value = course.target_date;
+      document.getElementById("edit_status").value = course.status;
+      document.getElementById("edit_description").value = course.description;
+
+      editModal.classList.add("active");
+    }
+
+    function closeModal() {
+      editModal.classList.remove("active");
+    }
+
+    editForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = document.getElementById("edit_id").value;
+      const payload = {
+        name: document.getElementById("edit_name").value.trim(),
+        description: document.getElementById("edit_description").value.trim(),
+        target_date: document.getElementById("edit_target_date").value,
+        status: document.getElementById("edit_status").value
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || "Failed to update course");
+
+        showAlert("Course updated successfully!");
+        closeModal();
+        fetchCourses();
+      } catch (err) {
+        showAlert(err.message, true);
+      }
+    });
+
+    // 4. DELETE /api/courses/{id}
+    async function deleteCourse(id) {
+      if (!confirm(`Are you sure you want to remove course #${id}?`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || "Failed to delete course");
+
+        showAlert("Course removed successfully!");
+        fetchCourses();
+      } catch (err) {
+        showAlert(err.message, true);
+      }
+    }
+
+    // Initial load
+    fetchCourses();
+  </script>
+</body>
+</html>
